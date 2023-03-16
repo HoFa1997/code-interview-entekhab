@@ -13,11 +13,6 @@ export default function Home() {
     setData(repository[step]);
   }, [step, select]);
 
-  useEffect(() => {
-    console.log(repository[step]);
-    console.log(step);
-  }, [step, select]);
-
   const allStep = repository.length;
 
   const nextStep = () => {
