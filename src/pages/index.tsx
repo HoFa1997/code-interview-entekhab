@@ -13,7 +13,12 @@ export default function Home() {
     setData(repository[step]);
   }, [step, select]);
 
-  const allStep = repository.length - 1;
+  useEffect(() => {
+    console.log(repository[step]);
+    console.log(step);
+  }, [step, select]);
+
+  const allStep = repository.length;
 
   const nextStep = () => {
     setStep((pervState) => {
@@ -21,21 +26,22 @@ export default function Home() {
       return (pervState = pervState);
     });
   };
+
   const backStep = () => {
     setStep((pervState) => {
-      if (pervState > 1) return pervState - 1;
-      return (pervState = 0);
+      return pervState < 1 ? (pervState = 0) : pervState - 1;
+      // if (pervState > 1) return pervState - 1;
+      // return (pervState = 0);
     });
   };
 
   const itemClicked = (item: ISelected) => {
-    setStep((pervState) => {
-      if (pervState === allStep) return pervState;
-      if (pervState <= allStep) return pervState + 1;
-      return (pervState = pervState);
-    });
-    console.log(select[step]);
-
+    // setStep((pervState) => {
+    //   if (pervState === allStep) return pervState;
+    //   if (pervState <= allStep) return pervState + 1;
+    //   return (pervState = pervState);
+    // });
+    setStep((ps) => ps + 1);
     if (!select[step]) {
       setSelect((pervState) => {
         return pervState ? [...pervState, item] : [item];
@@ -58,66 +64,118 @@ export default function Home() {
         <Typography display={"block"}>{`all step :${allStep}`}</Typography>
         <Typography display={"block"}>{`now step :${step}`}</Typography>
 
-        <Box>
-          {data.title}
-          {data.type === "string" &&
-            data.list.map(
-              (item) =>
-                isStringModel(item.model) && (
-                  <Fragment key={item.model}>
+        {step < allStep ? (
+          <Box>
+            <Typography variant="h3" display={"block"}>
+              {data?.title}
+            </Typography>
+
+            {data?.type === "string"
+              ? data.list.map(
+                  (item) =>
+                    isStringModel(item.model) && (
+                      <Fragment key={item.model}>
+                        <Box
+                          sx={{
+                            bgcolor: "white",
+                            textAlign: "center",
+                            cursor: "pointer",
+                            p: 1,
+                            m: 1,
+                            borderRadius: 2,
+                          }}
+                          onClick={() =>
+                            isStringModel(item.model) &&
+                            itemClicked({
+                              step,
+                              selectedID: item.id,
+                              selectedValue: item.model,
+                            })
+                          }
+                        >
+                          <Typography
+                            color={
+                              select[step]?.selectedID === item.id
+                                ? "red"
+                                : "black"
+                            }
+                            display={"block"}
+                          >
+                            {item.model}
+                          </Typography>
+                        </Box>
+                      </Fragment>
+                    )
+                )
+              : data?.list
+                  .find((i) => {
+                    if (i?.id === select[step - 1]?.selectedID) {
+                      return i;
+                    }
+                  })
+                  // @ts-ignore
+                  ?.model?.map((b, index) => (
                     <Box
+                      sx={{
+                        bgcolor: "white",
+                        textAlign: "center",
+                        cursor: "pointer",
+                        p: 1,
+                        m: 1,
+                        borderRadius: 2,
+                      }}
                       onClick={() =>
-                        isStringModel(item.model) &&
                         itemClicked({
                           step,
-                          selectedID: item.id,
-                          selectedValue: item.model,
+                          selectedID: index,
+                          selectedValue: b,
                         })
                       }
+                      key={b}
                     >
                       <Typography
                         color={
-                          select[step]?.selectedID === item.id ? "red" : "black"
+                          select[step]?.selectedID === index ? "red" : "black"
                         }
                         display={"block"}
                       >
-                        {item.model}
+                        {b}
                       </Typography>
                     </Box>
-                  </Fragment>
-                )
-            )}
-        </Box>
-
-        {data.list
-          .find((i) => {
-            if (i?.id === select[step - 1]?.selectedID) {
-              return i;
-            }
-          })
-          // @ts-ignore
-          ?.model?.map((b, index) => (
-            <Box
-              onClick={() =>
-                itemClicked({ step, selectedID: index, selectedValue: b })
-              }
-              key={b}
-            >
-              <Typography
-                color={select[step]?.selectedID === index ? "red" : "black"}
-                display={"block"}
+                  ))}
+            <Box py={3} minWidth={250} display="flex">
+              <Button
+                fullWidth
+                onClick={nextStep}
+                variant="contained"
+                disabled={!!repository[step]}
+                sx={{ mr: 2 }}
               >
-                {b}
-              </Typography>
+                {"بعدی"}
+              </Button>
+              <Button
+                fullWidth
+                onClick={backStep}
+                variant="outlined"
+                disabled={step === 0}
+              >
+                {"قبلی"}
+              </Button>
             </Box>
-          ))}
-
-        <Button onClick={nextStep} variant="contained" disabled={false}>
-          {"بعدی"}
-        </Button>
-        <Button onClick={backStep} variant="outlined">
-          {"قبلی"}
-        </Button>
+          </Box>
+        ) : (
+          <Box minWidth={500} textAlign="center">
+            <Typography variant="h3">پایان</Typography>
+            <Button
+              fullWidth
+              onClick={backStep}
+              variant="outlined"
+              disabled={step === 0}
+            >
+              {"قبلی"}
+            </Button>
+          </Box>
+        )}
       </Box>
     </Container>
   );
