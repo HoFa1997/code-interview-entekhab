@@ -7,6 +7,7 @@ interface ISelected {
   step: number;
   item: number;
   model: string;
+  arrayIndex: number;
 }
 
 const Way: FC = () => {
@@ -19,19 +20,18 @@ const Way: FC = () => {
   useEffect(() => {}, [selected]);
 
   const replaceSelectedAtStep = (step: number, newSelected: ISelected) => {
-    setStepHistory([...stepHistory, step]);
-    // console.log("🚀step:", step);
-    // console.log("🚀selected.indexOf", selected.indexOf(selected[step]));
     // Check if the selected array already has an item at the given step number
     const existingSelected = selected.find((s) => s.step === step);
+
     // If an item exists at the given step number, replace it
     if (existingSelected) {
-      const index = selected.indexOf(selected[step]);
+      const index = selected.indexOf(existingSelected);
       selected[index] = newSelected;
     } else {
       // Otherwise, push the new item onto the array
       selected.push(newSelected);
     }
+
     // Sort the selected array by step number, to ensure the items are in order
     selected.sort((a, b) => a.step - b.step);
   };
@@ -39,9 +39,11 @@ const Way: FC = () => {
   const handleItemClick = (
     step: number,
     itemIndex: number,
-    itemModel: string
+    itemModel: string,
+    arrayIndex: number
   ) => {
-    const newSelected = { step, item: itemIndex, model: itemModel };
+    setStepHistory([...stepHistory, arrayIndex]);
+    const newSelected = { step, item: itemIndex, model: itemModel, arrayIndex };
     replaceSelectedAtStep(step, newSelected);
     setStep(step);
   };
@@ -57,7 +59,7 @@ const Way: FC = () => {
   useEffect(() => {
     setData(repository[step]);
     // console.log("🚀selected[step - 1]:", selected[step - 1]);
-    // console.log("🚀selected:", selected);
+    console.log("🚀selected:", selected);
     // console.log("🚀selected Step:", selected[step]);
     // console.log("🚀isNextStepDisabled:", isNextStepDisabled);
 
@@ -82,7 +84,8 @@ const Way: FC = () => {
               handleItemClick(
                 item.goStep ? item.goStep : step,
                 index,
-                item.model.toString()
+                item.model.toString(),
+                selected.length
               )
             }
           >
@@ -103,7 +106,8 @@ const Way: FC = () => {
                 handleItemClick(
                   item.goStep ? item.goStep : step,
                   index,
-                  insideModel
+                  insideModel,
+                  selected.length
                 )
               }
             >
@@ -122,7 +126,7 @@ const Way: FC = () => {
       <Box py={3} minWidth={250} display="flex">
         <Button
           fullWidth
-          onClick={() => handleItemClick()}
+          //   onClick={() => handleItemClick()}
           variant="contained"
           //   disabled={isNextStepDisabled}
           sx={{ mr: 2 }}
