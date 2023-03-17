@@ -48,7 +48,7 @@ export default function Home() {
   };
   return (
     <Container disableGutters>
-      <Box
+      {/* <Box
         bgcolor={"silver"}
         display={"flex"}
         flexDirection="column"
@@ -171,7 +171,7 @@ export default function Home() {
             </Button>
           </Box>
         )}
-      </Box>
+      </Box> */}
     </Container>
   );
 }

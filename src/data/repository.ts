@@ -1,49 +1,82 @@
 export type IList = {
   id: number;
   model: string | string[];
+  goStep?: number;
 };
 
 export interface IRepo {
+  step: number;
   title: string;
-  type: "string" | "array";
   list: IList[];
 }
 
 export const repository: IRepo[] = [
   {
+    step: 0,
     title: "برند خودرو شما چیه",
-    type: "string",
     list: [
-      { id: 0, model: "پژو" },
-      { id: 1, model: "پراید" },
-      { id: 2, model: "سمند" },
+      { id: 0, model: "پژو", goStep: 1 },
+      { id: 1, model: "پراید", goStep: 1 },
+      { id: 2, model: "سمند", goStep: 1 },
     ],
   },
   {
+    step: 1,
     title: "خودروتون رو انتخاب کنید",
-    type: "array",
     list: [
-      { id: 0, model: ["205", "206", "207"] },
-      { id: 1, model: ["صبا", "111", "132"] },
-      { id: 2, model: ["دنا", "سورن", "سورن+"] },
+      { id: 0, model: ["205", "206", "207"], goStep: 2 },
+      { id: 1, model: ["صبا", "111", "132"], goStep: 2 },
+      { id: 2, model: ["دنا", "سورن", "سورن+"], goStep: 2 },
     ],
   },
   {
+    step: 2,
     title: "نوع کاربری وسیله نقلیه خود را انتخاب نمایید",
-    type: "string",
     list: [
-      { id: 0, model: "سواری" },
-      { id: 1, model: "تاکسی" },
-      { id: 2, model: "تاکسی بیرون شهری" },
+      { id: 0, model: "سواری", goStep: 3 },
+      { id: 1, model: "تاکسی", goStep: 3 },
+      { id: 2, model: "تاکسی بیرون شهری", goStep: 3 },
     ],
   },
   {
+    step: 3,
     title: "سال ساخت خودرو",
-    type: "string",
     list: [
-      { id: 0, model: "1401" },
-      { id: 1, model: "1400" },
-      { id: 2, model: "1399" },
+      { id: 0, model: "1401", goStep: 4 },
+      { id: 1, model: "1400", goStep: 4 },
+      { id: 2, model: "1399", goStep: 4 },
+    ],
+  },
+  {
+    step: 4,
+    title: "وضعیت بیمه نامه قبلی",
+    list: [
+      { id: 0, model: "بیمه قبلی داشته ام", goStep: 5 },
+      { id: 1, model: "بیمه قبلی نداشته ام", goStep: 6 },
+    ],
+  },
+  {
+    step: 5,
+    title: "STEP5تعداد سال تخفیف عدم خسارت بیمه بدنه",
+    list: [
+      { id: 0, model: "بدون تخفیف", goStep: 7 },
+      { id: 1, model: "یک سال", goStep: 7 },
+    ],
+  },
+  {
+    step: 6,
+    title: "STEP6تخفیف عدم خسارت ثالث",
+    list: [
+      { id: 0, model: "دو سال", goStep: 7 },
+      { id: 1, model: "سه سال", goStep: 7 },
+    ],
+  },
+  {
+    step: 7,
+    title: "STEP7ارزش خودرو",
+    list: [
+      { id: 0, model: "5,000,000 M" },
+      { id: 1, model: "10,000,000 M" },
     ],
   },
 ];
