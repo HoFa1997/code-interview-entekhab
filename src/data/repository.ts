@@ -1,7 +1,7 @@
 export type IList = {
   id: number;
   model: string | string[];
-  goStep?: number;
+  goStep: number;
 };
 
 export interface IRepo {
@@ -57,7 +57,7 @@ export const repository: IRepo[] = [
   },
   {
     step: 5,
-    title: "STEP5تعداد سال تخفیف عدم خسارت بیمه بدنه",
+    title: "تعداد سال تخفیف عدم خسارت بیمه بدنه",
     list: [
       { id: 0, model: "بدون تخفیف", goStep: 7 },
       { id: 1, model: "یک سال", goStep: 7 },
@@ -65,7 +65,7 @@ export const repository: IRepo[] = [
   },
   {
     step: 6,
-    title: "STEP6تخفیف عدم خسارت ثالث",
+    title: "تخفیف عدم خسارت ثالث",
     list: [
       { id: 0, model: "دو سال", goStep: 7 },
       { id: 1, model: "سه سال", goStep: 7 },
@@ -73,10 +73,10 @@ export const repository: IRepo[] = [
   },
   {
     step: 7,
-    title: "STEP7ارزش خودرو",
+    title: "ارزش خودرو",
     list: [
-      { id: 0, model: "5,000,000 M" },
-      { id: 1, model: "10,000,000 M" },
+      { id: 0, model: "5,000,000 M", goStep: 8 },
+      { id: 1, model: "10,000,000 M", goStep: 8 },
     ],
   },
 ];

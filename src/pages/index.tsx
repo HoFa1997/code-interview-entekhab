@@ -1,177 +1,213 @@
-import { isStringModel } from "@/utils/functions";
-import { Box, Button, Container, Typography } from "@mui/material";
-import { Fragment, useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  Step,
+  StepConnector,
+  stepConnectorClasses,
+  StepLabel,
+  styled,
+  Typography,
+} from "@mui/material";
+import { FC, useEffect, useState } from "react";
 import { IRepo, repository } from "../data/repository";
+import Stepper from "@mui/material/Stepper";
+interface ISelected {
+  id: number;
+  model: string;
+  step: number;
+  nextStep: number;
+}
 
-export default function Home() {
-  type ISelected = { step: number; selectedID: number; selectedValue: string };
-  const [step, setStep] = useState<number>(0);
-  const [data, setData] = useState<IRepo>(repository[step]);
-  const [select, setSelect] = useState<ISelected[]>([]);
+const QontoConnector = styled(StepConnector)(({ theme }) => ({
+  [`&.${stepConnectorClasses.alternativeLabel}`]: {
+    top: 10,
+    left: "calc(-50% + 16px)",
+    right: "calc(50% + 16px)",
+  },
+  [`&.${stepConnectorClasses.active}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: "#784af4",
+    },
+  },
+  [`&.${stepConnectorClasses.completed}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: "#784af4",
+    },
+  },
+  [`& .${stepConnectorClasses.line}`]: {
+    borderColor:
+      theme.palette.mode === "dark" ? theme.palette.grey[800] : "#eaeaf0",
+    borderTopWidth: 3,
+    borderRadius: 1,
+  },
+}));
 
-  useEffect(() => {
-    setData(repository[step]);
-  }, [step, select]);
+const Way: FC = () => {
+  const [numbers, setNumbers] = useState([0]);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [data, setData] = useState<IRepo>(repository[currentStep]);
+  const [selected, setSelected] = useState<ISelected[]>([]);
+  const [allStep] = useState<number>(repository.length);
 
-  const allStep = repository.length;
+  const addNumber = () =>
+    setNumbers([...numbers, numbers[numbers.length - 1] + 1]);
 
-  const nextStep = () => {
-    setStep((pervState) => {
-      if (pervState < allStep) return pervState + 1;
-      return (pervState = pervState);
-    });
-  };
+  const isNextStepDisabled = numbers.length - 1 === selected.length;
 
-  const backStep = () => {
-    setStep((pervState) => {
-      return pervState < 1 ? (pervState = 0) : pervState - 1;
-      // if (pervState > 1) return pervState - 1;
-      // return (pervState = 0);
-    });
-  };
-
-  const itemClicked = (item: ISelected) => {
-    // setStep((pervState) => {
-    //   if (pervState === allStep) return pervState;
-    //   if (pervState <= allStep) return pervState + 1;
-    //   return (pervState = pervState);
-    // });
-    setStep((ps) => ps + 1);
-    if (!select[step]) {
-      setSelect((pervState) => {
-        return pervState ? [...pervState, item] : [item];
-      });
+  const replaceSelectedAtStep = (newSelected: ISelected) => {
+    const existingSelectedModel = selected.find(
+      (i) => i.step === newSelected.step
+    );
+    if (existingSelectedModel) {
+      const index = selected.indexOf(existingSelectedModel);
+      const updatedSelected = [...selected];
+      updatedSelected.splice(index, 1, newSelected);
+      setSelected(updatedSelected);
     } else {
-      select.splice(step, 1, item);
-      setSelect(select);
+      const updatedSelected = [...selected, newSelected];
+      setSelected(updatedSelected);
     }
   };
+
+  const handleItemClick = (itemData: ISelected) => {
+    replaceSelectedAtStep(itemData);
+    setCurrentStep(itemData.nextStep);
+    addNumber();
+  };
+
+  const handleBackButton = () => {
+    if (numbers.length > 1) {
+      const newNumbers = numbers.slice(0, -1);
+      setNumbers(newNumbers);
+      setCurrentStep(selected[newNumbers.length - 1].step);
+    }
+  };
+
+  const handleNextButton = () => {
+    if (selected[currentStep]) {
+      setCurrentStep(selected[currentStep].nextStep);
+      addNumber();
+    }
+  };
+
+  useEffect(() => {
+    setData(repository[currentStep]);
+  }, [currentStep]);
+
   return (
-    <Container disableGutters>
-      {/* <Box
-        bgcolor={"silver"}
-        display={"flex"}
-        flexDirection="column"
-        alignItems="center"
-        justifyContent={"center"}
-        minWidth={600}
-      >
-        <Typography display={"block"}>{`all step :${allStep}`}</Typography>
-        <Typography display={"block"}>{`now step :${step}`}</Typography>
-
-        {step < allStep ? (
-          <Box>
-            <Typography variant="h3" display={"block"}>
-              {data?.title}
-            </Typography>
-
-            {data?.type === "string"
-              ? data.list.map(
-                  (item) =>
-                    isStringModel(item.model) && (
-                      <Fragment key={item.model}>
-                        <Box
-                          sx={{
-                            bgcolor: "white",
-                            textAlign: "center",
-                            cursor: "pointer",
-                            p: 1,
-                            m: 1,
-                            borderRadius: 2,
-                          }}
-                          onClick={() =>
-                            isStringModel(item.model) &&
-                            itemClicked({
-                              step,
-                              selectedID: item.id,
-                              selectedValue: item.model,
-                            })
-                          }
-                        >
-                          <Typography
-                            color={
-                              select[step]?.selectedID === item.id
-                                ? "red"
-                                : "black"
-                            }
-                            display={"block"}
-                          >
-                            {item.model}
-                          </Typography>
-                        </Box>
-                      </Fragment>
-                    )
-                )
-              : data?.list
-                  .find((i) => {
-                    if (i?.id === select[step - 1]?.selectedID) {
-                      return i;
-                    }
+    <Container
+      sx={{
+        textAlign: "center",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Typography display={"block"}>{`همه مراحل :${allStep}`}</Typography>
+      <Typography display={"block"}>{`مرحله فعلی :${currentStep}`}</Typography>
+      <Box py={5}>
+        <Stepper
+          alternativeLabel
+          activeStep={currentStep}
+          connector={<QontoConnector />}
+        >
+          {repository.map((i, inx) => (
+            <Step key={inx}>
+              <StepLabel>{i.title}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      </Box>
+      <Typography variant="h3" display={"block"}>
+        {data?.title}
+      </Typography>
+      <Box width={500}>
+        {allStep !== currentStep ? (
+          data?.list.map((item, index) =>
+            !Array.isArray(item.model) ? (
+              <Card
+                sx={{
+                  m: 2,
+                  cursor: "pointer",
+                  ":hover": { bgcolor: "silver" },
+                  background: (t) =>
+                    selected[numbers.length - 1]?.model === item.model
+                      ? t.palette.success.light
+                      : t.palette.grey[50],
+                }}
+                key={index}
+                onClick={() =>
+                  handleItemClick({
+                    id: item.id,
+                    model: item.model as string,
+                    step: currentStep,
+                    nextStep: item.goStep,
                   })
-                  // @ts-ignore
-                  ?.model?.map((b, index) => (
-                    <Box
-                      sx={{
-                        bgcolor: "white",
-                        textAlign: "center",
-                        cursor: "pointer",
-                        p: 1,
-                        m: 1,
-                        borderRadius: 2,
-                      }}
-                      onClick={() =>
-                        itemClicked({
-                          step,
-                          selectedID: index,
-                          selectedValue: b,
-                        })
-                      }
-                      key={b}
-                    >
-                      <Typography
-                        color={
-                          select[step]?.selectedID === index ? "red" : "black"
-                        }
-                        display={"block"}
-                      >
-                        {b}
-                      </Typography>
-                    </Box>
-                  ))}
-            <Box py={3} minWidth={250} display="flex">
-              <Button
-                fullWidth
-                onClick={nextStep}
-                variant="contained"
-                disabled={!!repository[step]}
-                sx={{ mr: 2 }}
+                }
               >
-                {"بعدی"}
-              </Button>
-              <Button
-                fullWidth
-                onClick={backStep}
-                variant="outlined"
-                disabled={step === 0}
-              >
-                {"قبلی"}
-              </Button>
-            </Box>
-          </Box>
+                <Typography variant="h4" display={"block"}>
+                  {item.model}
+                </Typography>
+              </Card>
+            ) : (
+              item.id === selected[currentStep - 1]?.id &&
+              item.model.map((insideModel, index) => (
+                <Card
+                  sx={{
+                    m: 2,
+                    cursor: "pointer",
+                    ":hover": { bgcolor: "silver" },
+                    background: (t) =>
+                      selected[currentStep]?.model === insideModel
+                        ? t.palette.success.light
+                        : t.palette.grey[50],
+                  }}
+                  key={insideModel}
+                  onClick={() =>
+                    handleItemClick({
+                      id: item.id,
+                      model: insideModel as string,
+                      step: currentStep,
+                      nextStep: item.goStep,
+                    })
+                  }
+                >
+                  <Typography variant="h4" display={"block"}>
+                    {insideModel}
+                  </Typography>
+                </Card>
+              ))
+            )
+          )
         ) : (
-          <Box minWidth={500} textAlign="center">
-            <Typography variant="h3">پایان</Typography>
-            <Button
-              fullWidth
-              onClick={backStep}
-              variant="outlined"
-              disabled={step === 0}
-            >
-              {"قبلی"}
-            </Button>
-          </Box>
+          <>END</>
         )}
-      </Box> */}
+      </Box>
+
+      <Box py={3} minWidth={250} display="flex">
+        <Button
+          fullWidth
+          onClick={() => handleNextButton()}
+          variant="contained"
+          disabled={!selected[currentStep] || isNextStepDisabled}
+          sx={{ mr: 2 }}
+        >
+          {"بعدی"}
+        </Button>
+        <Button
+          fullWidth
+          onClick={() => handleBackButton()}
+          variant="outlined"
+          disabled={currentStep === 0}
+        >
+          {"قبلی"}
+        </Button>
+      </Box>
     </Container>
   );
-}
+};
+
+export default Way;
